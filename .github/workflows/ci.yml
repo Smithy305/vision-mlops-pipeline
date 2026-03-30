@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest tests/ -v --tb=short
+
+  quality-gate:
+    name: Accuracy Gate
+    runs-on: ubuntu-latest
+    # Only run if a checkpoint exists — skip on fresh pushes with no trained model
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check for checkpoint
+        id: check_ckpt
+        run: |
+          if [ -f "checkpoints/model_best.pt" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "No checkpoint found — skipping accuracy gate."
+          fi
+
+      - name: Run evaluation
+        if: steps.check_ckpt.outputs.exists == 'true'
+        run: python src/evaluate.py --output results/metrics.json
+
+      - name: Check top-1 accuracy threshold
+        if: steps.check_ckpt.outputs.exists == 'true'
+        run: |
+          python - <<'EOF'
+          import json, sys
+
+          with open("results/metrics.json") as f:
+              metrics = json.load(f)
+
+          top1 = metrics["top1_accuracy"]
+          threshold = 0.60
+
+          print(f"Top-1 accuracy : {top1:.4f}")
+          print(f"Threshold      : {threshold:.4f}")
+
+          if top1 >= threshold:
+              print("✓ PASS — accuracy meets the quality gate.")
+              sys.exit(0)
+          else:
+              print("✗ FAIL — accuracy below threshold.")
+              sys.exit(1)
+          EOF
+
+      - name: Upload metrics artifact
+        if: steps.check_ckpt.outputs.exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: evaluation-metrics
+          path: results/metrics.json
