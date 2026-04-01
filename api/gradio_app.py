@@ -26,37 +26,28 @@ from api.model import predict
 # Inference wrapper
 # ---------------------------------------------------------------------------
 
-def classify_image(image: Image.Image) -> tuple[dict, str]:
-    """Run inference and return results in Gradio-compatible format.
+def classify_image(image: Image.Image) -> str:
+    """Run inference and return results as a markdown string.
 
-    Returns (label_confidences_dict, markdown_table_string).
+    Returns a markdown table with top-5 predictions and confidence scores.
     """
     if image is None:
-        return {}, "Please upload an image."
+        return "Please upload an image."
 
     result = predict(image)
 
-    # Label dict for gr.Label component (class_name -> confidence)
-    label_dict = {
-        p["class_name"]: p["confidence"]
-        for p in result["top5_predictions"]
-    }
-
-    # Markdown summary table
     top1 = result["predicted_class"]
     conf = result["confidence"]
     rows = "\n".join(
         f"| {i+1} | {p['class_name']} | {p['confidence']:.1%} |"
         for i, p in enumerate(result["top5_predictions"])
     )
-    md = (
+    return (
         f"### Prediction: **{top1}** ({conf:.1%} confidence)\n\n"
         f"| Rank | Class | Confidence |\n"
         f"|------|-------|------------|\n"
         f"{rows}"
     )
-
-    return label_dict, md
 
 
 # ---------------------------------------------------------------------------
@@ -87,20 +78,17 @@ def build_interface() -> gr.Blocks:
                 submit_btn = gr.Button("Classify", variant="primary")
 
             with gr.Column(scale=1):
-                label_output = gr.JSON(
-                    label="Top-5 Predictions",
-                )
-                markdown_output = gr.Markdown(label="Details")
+                output = gr.Markdown(label="Results")
 
         submit_btn.click(
             fn=classify_image,
             inputs=image_input,
-            outputs=[label_output, markdown_output],
+            outputs=output,
         )
         image_input.change(
             fn=classify_image,
             inputs=image_input,
-            outputs=[label_output, markdown_output],
+            outputs=output,
         )
 
         gr.Markdown(
