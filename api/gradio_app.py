@@ -87,8 +87,7 @@ def build_interface() -> gr.Blocks:
                 submit_btn = gr.Button("Classify", variant="primary")
 
             with gr.Column(scale=1):
-                label_output = gr.Label(
-                    num_top_classes=5,
+                label_output = gr.JSON(
                     label="Top-5 Predictions",
                 )
                 markdown_output = gr.Markdown(label="Details")
