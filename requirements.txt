@@ -12,7 +12,7 @@ uvicorn[standard]==0.29.0
 python-multipart==0.0.9
 
 # Gradio UI
-gradio==4.31.4
+gradio==4.44.1
 huggingface_hub==0.23.0
 
 # Monitoring
