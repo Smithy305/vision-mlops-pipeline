@@ -1,8 +1,19 @@
+---
+title: Vision MLOps Pipeline
+emoji: ✈️
+colorFrom: blue
+colorTo: indigo
+sdk: gradio
+sdk_version: 4.31.4
+app_file: app.py
+pinned: false
+---
+
 # Vision MLOps Pipeline
 
 End-to-end MLOps pipeline for fine-grained image classification — ResNet-50 fine-tuned on FGVC-Aircraft, served via FastAPI, monitored with Evidently AI, and gated by GitHub Actions CI.
 
-> **Live demo:** _placeholder — deploy to Hugging Face Spaces and update this link_
+> **Live demo:** [Hugging Face Spaces](https://huggingface.co/spaces/Smithy305/vision-mlops-pipeline)
 
 ---
 
