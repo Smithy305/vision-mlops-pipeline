@@ -7,6 +7,7 @@ sdk: gradio
 sdk_version: 4.31.4
 app_file: app.py
 pinned: false
+python_version: "3.11"
 ---
 
 # Vision MLOps Pipeline
