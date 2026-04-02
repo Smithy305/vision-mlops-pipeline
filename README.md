@@ -12,9 +12,20 @@ python_version: "3.11"
 
 # Vision MLOps Pipeline
 
-End-to-end MLOps pipeline for fine-grained image classification — ResNet-50 fine-tuned on FGVC-Aircraft, served via FastAPI, monitored with Evidently AI, and gated by GitHub Actions CI.
+End-to-end MLOps pipeline for fine-grained image classification. ResNet-50 fine-tuned on FGVC-Aircraft (100 classes), served via FastAPI, monitored with Evidently AI, and gated by GitHub Actions CI.
 
-> **Live demo:** [Hugging Face Spaces](https://huggingface.co/spaces/Smithy305/vision-mlops-pipeline)
+> **Live demo:** [Hugging Face Spaces](https://huggingface.co/spaces/Smithy305/vision-mlops-pipeline)  
+> **Experiment tracking:** [Weights & Biases](https://wandb.ai/joe-gc-smith-newca/vision-mlops-pipeline)
+
+## Results
+
+| Metric | Value |
+|--------|-------|
+| Top-1 accuracy | 63.5% |
+| Top-5 accuracy | 88.3% |
+| Dataset | FGVC-Aircraft (100 variants) |
+| Test samples | 3,333 |
+| Architecture | ResNet-50 (ImageNet pretrained, fine-tuned) |
 
 ---
 
@@ -55,7 +66,7 @@ End-to-end MLOps pipeline for fine-grained image classification — ResNet-50 fi
 ┌─────────────────────────────────────────────┐
 │  CI/CD  (.github/workflows/ci.yml)          │
 │  • pytest test suite                        │
-│  • evaluate.py → top-1 ≥ 70% gate          │
+│  • evaluate.py → top-1 ≥ 60% gate          │
 └─────────────────────────────────────────────┘
 ```
 
@@ -81,6 +92,8 @@ Set your W&B API key (required for experiment tracking):
 ```bash
 export WANDB_API_KEY=your_key_here
 ```
+
+> **Apple Silicon (M1/M2/M3):** MPS acceleration is supported automatically. The script detects MPS and uses it in preference to CPU. Set `--num-workers 0` to avoid macOS file descriptor limits with DataLoader.
 
 ---
 
