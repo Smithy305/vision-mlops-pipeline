@@ -84,11 +84,13 @@ def build_interface() -> gr.Blocks:
             fn=classify_image,
             inputs=image_input,
             outputs=output,
+            api_name=False,
         )
         image_input.change(
             fn=classify_image,
             inputs=image_input,
             outputs=output,
+            api_name=False,
         )
 
         gr.Markdown(
